@@ -36,13 +36,15 @@ public class TransferObject {
 	 *             if a problem with the I/O occurs
 	 */
 	public int transfer(int numberOfBytes, int offset) throws IOException {
+		// Skip the given offset from the input stream
+		input.skip(offset);
 		byte[] buffer = new byte[256];
 		int bytesRead = 0;
 		int temp = 0;
 		while ((bytesRead = input.read(buffer)) != -1) {
-			output.write(buffer, offset, bytesRead - offset);
-			temp = bytesRead;
+			output.write(buffer, 0, bytesRead);
+			temp += bytesRead;
 		}
-		return temp - offset;
+		return temp;
 	}
 }

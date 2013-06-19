@@ -22,14 +22,19 @@ public class TransferObjectTest {
 	 */
 	@Test
 	public void test() throws IOException {
-		String str = "This is some test content.";
-		int transferOffset = 0;
-		
+		String str = "";
+		/*
+		 * Fill the string with 512 character for testing
+		 */
+		for (int i = 0; i < 512; i++) {
+			str += "|";
+		}
+		int transferOffset = 50;
 		InputStream in = new ByteArrayInputStream(str.getBytes());
 		OutputStream out = new ByteArrayOutputStream();
 		TransferObject transferrer = new TransferObject(in, out);
 		int transferred = transferrer.transfer(str.length(), transferOffset);
-		assertEquals(str, out.toString());
-		assertEquals(transferred, str.length() - transferOffset);
+		assertEquals(str.length() - transferOffset, transferred);
+		assertEquals(str.substring(transferOffset), out.toString());
 	}
 }

@@ -1,11 +1,6 @@
 package com.sirma.itt.javacourse.io;
 
-import java.io.IOException;
-import java.nio.file.DirectoryIteratorException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,31 +15,45 @@ public final class DirectoryBrowser {
 	}
 
 	/**
-	 * Checks if the given path points to a file. If yes, displays a message,
-	 * otherwise returns a list of string containnig the names of all files and
-	 * fiolders contained in the path
+	 * Returns a list with all folders, subfolders and files contained in the
+	 * given directory, or an empty list if the folder is empty. Uses depth
+	 * first search recursion to iterate over all subdirectories, if any.
 	 * 
-	 * @return a List<String> with all contents of the folder, or an empty list
-	 *         if the path points to a file
+	 * @return a List<String> with all contents of the folder
 	 * @param path
 	 *            is the file path to check for. It can be an absolute path for
 	 *            the OS, or a relative path for the program's home dir
 	 */
-	public static List<String> listContent(String path) {
-		Path dir = Paths.get(path);
+	public static List<String> getContent(String path) {
 		List<String> contents = new ArrayList<String>();
-		if (!Files.isDirectory(dir)) {
-			System.out.println("The specified path points to a file.");
-		} else {
-			try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
-				for (Path file : stream) {
-					contents.add(file.getFileName().toString());
-				}
-			} catch (IOException | DirectoryIteratorException x) {
-				System.err.println(x);
-			}
+		File file = new File(path);
+		File[] subDirectories = file.listFiles();
+		for (File temp : subDirectories) {
+			contents.add(temp.getName());
+			getContent(temp.toString(), contents);
 		}
 		return contents;
+	}
+
+	/**
+	 * Recursive method. Adds to the list all subfolders of the given path. If
+	 * the path points to a file, the method returns.
+	 * 
+	 * @param path
+	 *            is the relative path to get the contents of
+	 * @param contents
+	 *            is the list to fill with the found subfolders and files
+	 */
+	private static void getContent(String path, List<String> contents) {
+		File file = new File(path);
+		File[] subDirectories = file.listFiles();
+		if (subDirectories == null) {
+			return;
+		}
+		for (File temp : subDirectories) {
+			contents.add(temp.getName());
+			getContent(temp.toString(), contents);
+		}
 	}
 
 	/**
@@ -54,7 +63,7 @@ public final class DirectoryBrowser {
 	 *            are the cmd args
 	 */
 	public static void main(String[] args) {
-		List<String> contents = listContent("sampleFolder");
+		List<String> contents = getContent("sampleFolder");
 		System.out.println(contents);
 	}
 }
